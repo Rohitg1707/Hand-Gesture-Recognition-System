@@ -1,0 +1,107 @@
+<html>
+<head>
+<title>Gesture.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #629755; font-style: italic;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #808080;}
+.s3 { color: #cc7832;}
+.s4 { color: #6897bb;}
+.s5 { color: #6a8759;}
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Gesture.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">&quot;&quot;&quot; 
+<a name="l2"><span class="ln">2    </span></a># install packages if necessary 
+<a name="l3"><span class="ln">3    </span></a>!pip install opencv-python 
+<a name="l4"><span class="ln">4    </span></a>!pip install mediapipe 
+<a name="l5"><span class="ln">5    </span></a>!pip install tensorflow 
+<a name="l6"><span class="ln">6    </span></a>&quot;&quot;&quot;</span>
+<a name="l7"><span class="ln">7    </span></a>
+<a name="l8"><span class="ln">8    </span></a><span class="s2"># import necessary packages</span>
+<a name="l9"><span class="ln">9    </span></a><span class="s3">import </span><span class="s1">cv2</span>
+<a name="l10"><span class="ln">10   </span></a><span class="s3">import </span><span class="s1">numpy </span><span class="s3">as </span><span class="s1">np</span>
+<a name="l11"><span class="ln">11   </span></a><span class="s3">import </span><span class="s1">mediapipe </span><span class="s3">as </span><span class="s1">mp</span>
+<a name="l12"><span class="ln">12   </span></a><span class="s3">import </span><span class="s1">tensorflow </span><span class="s3">as </span><span class="s1">tf</span>
+<a name="l13"><span class="ln">13   </span></a><span class="s3">from </span><span class="s1">tensorflow.keras.models </span><span class="s3">import </span><span class="s1">load_model</span>
+<a name="l14"><span class="ln">14   </span></a>
+<a name="l15"><span class="ln">15   </span></a><span class="s2"># initialize mediapipe</span>
+<a name="l16"><span class="ln">16   </span></a><span class="s1">mpHands = mp.solutions.hands</span>
+<a name="l17"><span class="ln">17   </span></a><span class="s1">hands = mpHands.Hands(max_num_hands=</span><span class="s4">1</span><span class="s3">, </span><span class="s1">min_detection_confidence=</span><span class="s4">0.7</span><span class="s1">)</span>
+<a name="l18"><span class="ln">18   </span></a><span class="s1">mpDraw = mp.solutions.drawing_utils</span>
+<a name="l19"><span class="ln">19   </span></a>
+<a name="l20"><span class="ln">20   </span></a><span class="s2"># Load the gesture recognizer model</span>
+<a name="l21"><span class="ln">21   </span></a>
+<a name="l22"><span class="ln">22   </span></a><span class="s1">model = tf.keras.models.load_model(</span><span class="s5">'mp_hand_gesture'</span><span class="s1">)</span>
+<a name="l23"><span class="ln">23   </span></a>
+<a name="l24"><span class="ln">24   </span></a><span class="s2"># Load class names</span>
+<a name="l25"><span class="ln">25   </span></a>
+<a name="l26"><span class="ln">26   </span></a><span class="s1">f = open(</span><span class="s5">'gesture.names'</span><span class="s3">, </span><span class="s5">'r'</span><span class="s1">)</span>
+<a name="l27"><span class="ln">27   </span></a><span class="s1">classNames = f.read().split(</span><span class="s5">'</span><span class="s3">\n</span><span class="s5">'</span><span class="s1">)</span>
+<a name="l28"><span class="ln">28   </span></a><span class="s1">f.close()</span>
+<a name="l29"><span class="ln">29   </span></a><span class="s1">print(classNames)</span>
+<a name="l30"><span class="ln">30   </span></a>
+<a name="l31"><span class="ln">31   </span></a><span class="s2"># Initialize the webcam</span>
+<a name="l32"><span class="ln">32   </span></a><span class="s1">cap = cv2.VideoCapture(</span><span class="s4">0</span><span class="s1">)</span>
+<a name="l33"><span class="ln">33   </span></a>
+<a name="l34"><span class="ln">34   </span></a><span class="s3">while True</span><span class="s1">:</span>
+<a name="l35"><span class="ln">35   </span></a>    <span class="s2"># Read each frame from the webcam</span>
+<a name="l36"><span class="ln">36   </span></a>    <span class="s1">_</span><span class="s3">, </span><span class="s1">frame = cap.read()</span>
+<a name="l37"><span class="ln">37   </span></a>
+<a name="l38"><span class="ln">38   </span></a>    <span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">c = frame.shape</span>
+<a name="l39"><span class="ln">39   </span></a>
+<a name="l40"><span class="ln">40   </span></a>    <span class="s2"># Flip the frame vertically</span>
+<a name="l41"><span class="ln">41   </span></a>    <span class="s1">frame = cv2.flip(frame</span><span class="s3">, </span><span class="s4">1</span><span class="s1">)</span>
+<a name="l42"><span class="ln">42   </span></a>    <span class="s1">framergb = cv2.cvtColor(frame</span><span class="s3">, </span><span class="s1">cv2.COLOR_BGR2RGB)</span>
+<a name="l43"><span class="ln">43   </span></a>
+<a name="l44"><span class="ln">44   </span></a>    <span class="s2"># Get hand landmark prediction</span>
+<a name="l45"><span class="ln">45   </span></a>    <span class="s1">result = hands.process(framergb)</span>
+<a name="l46"><span class="ln">46   </span></a>
+<a name="l47"><span class="ln">47   </span></a>    <span class="s2"># print(result)</span>
+<a name="l48"><span class="ln">48   </span></a>
+<a name="l49"><span class="ln">49   </span></a>    <span class="s1">className = </span><span class="s5">''</span>
+<a name="l50"><span class="ln">50   </span></a>
+<a name="l51"><span class="ln">51   </span></a>    <span class="s2"># post process the result</span>
+<a name="l52"><span class="ln">52   </span></a>    <span class="s3">if </span><span class="s1">result.multi_hand_landmarks:</span>
+<a name="l53"><span class="ln">53   </span></a>        <span class="s1">landmarks = []</span>
+<a name="l54"><span class="ln">54   </span></a>        <span class="s3">for </span><span class="s1">handslms </span><span class="s3">in </span><span class="s1">result.multi_hand_landmarks:</span>
+<a name="l55"><span class="ln">55   </span></a>            <span class="s3">for </span><span class="s1">lm </span><span class="s3">in </span><span class="s1">handslms.landmark:</span>
+<a name="l56"><span class="ln">56   </span></a>                <span class="s2"># print(id, lm)</span>
+<a name="l57"><span class="ln">57   </span></a>                <span class="s1">lmx = int(lm.x * x)</span>
+<a name="l58"><span class="ln">58   </span></a>                <span class="s1">lmy = int(lm.y * y)</span>
+<a name="l59"><span class="ln">59   </span></a>
+<a name="l60"><span class="ln">60   </span></a>                <span class="s1">landmarks.append([lmx</span><span class="s3">, </span><span class="s1">lmy])</span>
+<a name="l61"><span class="ln">61   </span></a>
+<a name="l62"><span class="ln">62   </span></a>            <span class="s2"># Drawing landmarks on frames</span>
+<a name="l63"><span class="ln">63   </span></a>            <span class="s1">mpDraw.draw_landmarks(frame</span><span class="s3">, </span><span class="s1">handslms</span><span class="s3">, </span><span class="s1">mpHands.HAND_CONNECTIONS)</span>
+<a name="l64"><span class="ln">64   </span></a>
+<a name="l65"><span class="ln">65   </span></a>            <span class="s2"># Predict gesture</span>
+<a name="l66"><span class="ln">66   </span></a>            <span class="s1">prediction = model.predict([landmarks])</span>
+<a name="l67"><span class="ln">67   </span></a>            <span class="s1">print(prediction)</span>
+<a name="l68"><span class="ln">68   </span></a>            <span class="s1">classID = np.argmax(prediction)</span>
+<a name="l69"><span class="ln">69   </span></a>            <span class="s1">className = classNames[classID]</span>
+<a name="l70"><span class="ln">70   </span></a>
+<a name="l71"><span class="ln">71   </span></a>    <span class="s2"># show the prediction on the frame</span>
+<a name="l72"><span class="ln">72   </span></a>    <span class="s1">cv2.putText(frame</span><span class="s3">, </span><span class="s1">className</span><span class="s3">, </span><span class="s1">(</span><span class="s4">10</span><span class="s3">, </span><span class="s4">50</span><span class="s1">)</span><span class="s3">, </span><span class="s1">cv2.FONT_HERSHEY_SIMPLEX</span><span class="s3">,</span>
+<a name="l73"><span class="ln">73   </span></a>                <span class="s4">1</span><span class="s3">, </span><span class="s1">(</span><span class="s4">587</span><span class="s3">, </span><span class="s4">0</span><span class="s3">, </span><span class="s4">100</span><span class="s1">)</span><span class="s3">, </span><span class="s4">2</span><span class="s3">, </span><span class="s1">cv2.LINE_AA)</span>
+<a name="l74"><span class="ln">74   </span></a>
+<a name="l75"><span class="ln">75   </span></a>    <span class="s2"># Show the final output</span>
+<a name="l76"><span class="ln">76   </span></a>    <span class="s1">cv2.imshow(</span><span class="s5">&quot;Sign&quot;</span><span class="s3">, </span><span class="s1">frame)</span>
+<a name="l77"><span class="ln">77   </span></a>
+<a name="l78"><span class="ln">78   </span></a>    <span class="s3">if </span><span class="s1">cv2.waitKey(</span><span class="s4">1</span><span class="s1">) == ord(</span><span class="s5">'q'</span><span class="s1">):</span>
+<a name="l79"><span class="ln">79   </span></a>        <span class="s3">break</span>
+<a name="l80"><span class="ln">80   </span></a>
+<a name="l81"><span class="ln">81   </span></a><span class="s2"># release the webcam and destroy all active windows</span>
+<a name="l82"><span class="ln">82   </span></a><span class="s1">cap.release()</span>
+<a name="l83"><span class="ln">83   </span></a>
+<a name="l84"><span class="ln">84   </span></a><span class="s1">cv2.destroyAllWindows()</span>
+<a name="l85"><span class="ln">85   </span></a></pre>
+</body>
+</html>
